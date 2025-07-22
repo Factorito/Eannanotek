@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype - 비교견적 신청</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    .glass { background: rgba(255,255,255,0.7); box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); }
+    .icon-btn { border: 1.5px solid #222; border-radius: 0.5rem; padding: 0.25rem 0.5rem; display: inline-flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .icon-btn:hover { background: #f3f4f6; }
+    .gridCell { background: #000; border: 1px solid #fff; border-radius: 2px; }
+    .gridContainer { display: inline-grid; gap: 2px; padding: 6px; margin-top: 12px; overflow: visible; }
+    .result-box { background: #f1f8ff; padding: 14px; border-radius: 6px; margin-top: 12px; line-height: 1.5; }
+    .result-box strong { font-size: 1.1em; }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-white to-gray-200 min-h-screen">
+  <!-- 헤더/네비 -->
+  <header class="w-full bg-white/80 backdrop-blur-md shadow z-50 sticky top-0">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center py-2">
+        <span class="text-sm text-gray-800 font-semibold">Prototype</span>
+      </div>
+      <div class="flex items-center justify-between py-4">
+        <div class="flex items-center space-x-4">
+          <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+            <img src="Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
+          </a>
+        </div>
+        <div class="flex-1 max-w-md mx-8">
+          <div class="relative">
+            <input type="text" placeholder="검색어를 입력해주세요." class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+        </div>
+        <nav class="flex items-center space-x-6">
+          <a href="#" class="text-gray-900 font-medium">비교견적 신청</a>
+          <a href="#" class="text-gray-900 font-medium">이력조회</a>
+          <a href="#" class="text-gray-900 font-medium">재료/부품 정보</a>
+          <a href="#" class="text-gray-900 font-medium">FAQ</a>
+          <a href="#" class="text-gray-900 font-medium">Blog</a>
+          <button class="px-4 py-2 text-gray-900 bg-white/80 hover:bg-black hover:text-white rounded-lg font-medium border border-gray-300">Sign in</button>
+          <button class="px-4 py-2 bg-black/90 text-white hover:bg-gray-900 rounded-lg font-medium">Register</button>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <!-- 본문 폼 -->
+  <main class="max-w-7xl mx-auto px-4 py-8">
+    <form class="space-y-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-4">
+        <div>
+          <label class="block text-gray-700 mb-1">Email</label>
+          <input type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black" placeholder="Value" />
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">원하시는 설치 날짜</label>
+          <input type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black" placeholder="Value" />
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">설치 지역</label>
+          <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black">
+            <option>서울</option>
+            <option>경기</option>
+            <option>부산</option>
+            <option>대전</option>
+            <option>기타</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">케이스</label>
+          <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black">
+            <option>알루미늄 기본 케이스</option>
+            <option>스틸 케이스</option>
+            <option>기타</option>
+          </select>
+        </div>
+      </div>
+      <div class="mb-4">
+        <div class="text-gray-700 font-semibold mb-2">설치 환경</div>
+        <div class="flex flex-wrap gap-6">
+          <label class="flex flex-col items-center cursor-pointer">
+            <input type="radio" name="env" value="indoor" class="form-radio mb-1" checked />
+            <img src="user_img1.png" alt="실내용" class="w-28 h-24 object-contain border rounded mb-1" />
+            <span class="text-xs text-gray-600">실내용</span>
+          </label>
+          <label class="flex flex-col items-center cursor-pointer">
+            <input type="radio" name="env" value="outdoor" class="form-radio mb-1" />
+            <img src="user_img2.png" alt="옥외용" class="w-28 h-24 object-contain border rounded mb-1" />
+            <span class="text-xs text-gray-600">옥외용</span>
+          </label>
+          <label class="flex flex-col items-center cursor-pointer">
+            <input type="radio" name="env" value="bannerIn" class="form-radio mb-1" />
+            <img src="user_img3.png" alt="배너형(실내)" class="w-20 h-28 object-contain border rounded mb-1" />
+            <span class="text-xs text-gray-600">배너형(실내)</span>
+          </label>
+          <label class="flex flex-col items-center cursor-pointer">
+            <input type="radio" name="env" value="bannerOut" class="form-radio mb-1" />
+            <img src="user_img4.png" alt="배너형(옥외)" class="w-24 h-28 object-contain border rounded mb-1" />
+            <span class="text-xs text-gray-600">배너형(옥외)</span>
+          </label>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 items-end">
+        <div>
+          <label class="block text-gray-700 mb-1">가로(mm)</label>
+          <input id="width" type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black" placeholder="3200" />
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">세로(mm)</label>
+          <input id="height" type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black" placeholder="800" />
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">LED 모듈</label>
+          <div class="flex flex-wrap gap-2">
+            <label><input type="radio" name="led" value="P1.25" class="form-radio" checked /> <span class="ml-1">P 1.25</span></label>
+            <label><input type="radio" name="led" value="P1.8" class="form-radio" /> <span class="ml-1">P 1.8</span></label>
+            <label><input type="radio" name="led" value="P2.0" class="form-radio" /> <span class="ml-1">P 2.0</span></label>
+            <label><input type="radio" name="led" value="P2.5" class="form-radio" /> <span class="ml-1">P 2.5</span></label>
+            <label><input type="radio" name="led" value="P3.0" class="form-radio" /> <span class="ml-1">P 3.0</span></label>
+            <label><input type="radio" name="led" value="P5.0" class="form-radio" /> <span class="ml-1">P 5.0</span></label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-gray-700 mb-1">업종</label>
+          <select class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-black focus:border-black">
+            <option>병원</option>
+            <option>학교</option>
+            <option>관공서</option>
+            <option>기타</option>
+          </select>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div id="sizeResult" class="result-box">제작 크기, 모듈 개수, 해상도, 표, 견적금액이 여기에 표시됩니다.</div>
+      </div>
+      <div class="flex justify-end mt-8">
+        <a href="CQ_QEQ_002.html" class="w-full md:w-auto bg-black text-white text-center py-3 px-8 rounded-lg font-semibold hover:bg-gray-800 transition">신청하기</a>
+      </div>
+    </form>
+  </main>
+  <script>
+    // 모듈 정보 및 가격 (간단화)
+    const moduleInfo = {
+      "P1.25": { width: 320, height: 160, pxW: 256, pxH: 128, price: 94000 },
+      "P1.8": { width: 320, height: 160, pxW: 172, pxH: 86, price: 44000 },
+      "P2.0": { width: 320, height: 160, pxW: 160, pxH: 80, price: 35000 },
+      "P2.5": { width: 320, height: 160, pxW: 128, pxH: 64, price: 25000 },
+      "P3.0": { width: 320, height: 160, pxW: 104, pxH: 52, price: 18000 },
+      "P5.0": { width: 320, height: 160, pxW: 64, pxH: 32, price: 12000 }
+    };
+    const installCost = 530000;
+    function updateEstimate() {
+      const w = +document.getElementById('width').value || 0;
+      const h = +document.getElementById('height').value || 0;
+      const led = document.querySelector('input[name="led"]:checked').value;
+      const info = moduleInfo[led];
+      const sizeBox = document.getElementById('sizeResult');
+      if (!w || !h) {
+        sizeBox.textContent = '가로/세로 크기를 입력해주세요.';
+        return;
+      }
+      const cols = Math.floor(w / info.width);
+      const rows = Math.floor(h / info.height);
+      if (cols === 0 || rows === 0) {
+        sizeBox.innerHTML = '선택한 모듈로는 입력하신 크기보다 작게 제작할 수 없습니다.<br>더 작은 Pitch 모듈을 선택하거나 크기를 늘려주세요.';
+        return;
+      }
+      const fitW = cols * info.width;
+      const fitH = rows * info.height;
+      const modules = cols * rows;
+      const resW = cols * info.pxW;
+      const resH = rows * info.pxH;
+      const modCost = modules * info.price;
+      const total = modCost + installCost;
+      // 표
+      let gridHtml = `<div class='gridContainer' style='grid-template-columns:repeat(${cols},32px);grid-auto-rows:32px'>`;
+      for(let i=0;i<modules;i++) gridHtml += '<div class="gridCell"></div>';
+      gridHtml += '</div>';
+      sizeBox.innerHTML =
+        `<div class='mb-2'><b>제작 :${fitW} X ${fitH} mm</b> (희망 크기 대비 작을 수 있습니다)<br>모듈 개수 : ${cols} X ${rows} = ${modules}개 , 해상도 ${resW} X ${resH} px</div>`+
+        gridHtml+
+        `<div class='mt-4 bg-gray-100 p-3 rounded'><b>예상 견적</b> <br>LED 전광판 견적 금액: <b>${modCost.toLocaleString()}원</b><br>설치비용(고정): <b>${installCost.toLocaleString()}원</b><br>총 예상: <b>${total.toLocaleString()}원</b></div>`+
+        `<div class='mt-2 text-xs text-gray-500'>* 본 금액은 전광판 제작 및 설치에 대한 기본견적입니다. 상세 내용은 상담 후 세부 견적을 받아보시기 바랍니다.</div>`;
+    }
+    document.getElementById('width').addEventListener('input', updateEstimate);
+    document.getElementById('height').addEventListener('input', updateEstimate);
+    document.querySelectorAll('input[name="led"]').forEach(r=>r.addEventListener('change', updateEstimate));
+    updateEstimate();
+  </script>
+</body>
+</html>
