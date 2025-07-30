@@ -3,7 +3,7 @@ package prototype.example.demo.controller;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import prototype.example.demo.entity.Ci;
 import prototype.example.demo.entity.Formula;
-import prototype.example.demo.entity.module;
+import prototype.example.demo.entity.Module;
 import prototype.example.demo.repository.CiRepository;
 import prototype.example.demo.repository.FormulaRepository;
 
@@ -17,6 +17,8 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import prototype.example.demo.repository.ModuleRepository;
 import prototype.example.demo.service.Formservice;
 
+import java.time.LocalDate;
+import java.util.Date;
 import java.util.Map;
 
 @Controller
@@ -43,22 +45,26 @@ public class EstimateController {
             @RequestParam int height,
             @RequestParam String led,
             @RequestParam String formulaName,
-            @RequestParam int install_day,
+            @RequestParam LocalDate install_day,
             @RequestParam String location,
-            @RequestParam String caseType,
+            @RequestParam String CaseType,
             @RequestParam String env,
-            @RequestParam String industry,
+            @RequestParam String field,
+
             RedirectAttributes redirectAttributes
     ) {
         // 계산 및 저장
         Map<String, Object> result = formService.processEstimate(
                 email, width, height, led, formulaName,
-                install_day, location, caseType, env, industry
+                install_day, location, CaseType, env, field
         );
 
+
+        redirectAttributes.addFlashAttribute("email2", email); // Ci 엔티티의 email2 필드명과 일치
+        redirectAttributes.addFlashAttribute("installDay", install_day); // Ci 엔티티의 installDay 필드명과 일치
         // 결과값 model에 담아 redirect
         redirectAttributes.addFlashAttribute("estimate", result);
-        return "redirect:/qeq_002";
+        return "redirect:/prototype/qeq2";
     }
 
 }

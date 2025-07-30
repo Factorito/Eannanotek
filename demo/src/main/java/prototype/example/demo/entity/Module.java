@@ -5,7 +5,7 @@ import lombok.Data;
 @Entity
 @Table(name = "module")
 @Data
-public class module {
+public class Module {
 
     @Id
     private String name; // 예: "P2.5"

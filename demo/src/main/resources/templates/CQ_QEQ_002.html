@@ -3,128 +3,264 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prototype - 견적서 결과</title>
+  <title>LED 스크린 전광판 견적서</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     body { font-family: 'Inter', sans-serif; }
     .glass { background: rgba(255,255,255,0.7); box-shadow: 0 8px 32px 0 rgba(31,38,135,0.18); backdrop-filter: blur(12px); border-radius: 1.5rem; border: 1px solid rgba(255,255,255,0.18); }
-    .table th, .table td { border: 1px solid #d1d5db; padding: 0.5rem; }
-    .table th { background: #f3f4f6; font-weight: 600; }
-    .table { border-collapse: collapse; width: 100%; font-size: 0.95rem; }
-    .table-section { background: #f9fafb; }
+    .table-custom { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
+    .table-custom th, .table-custom td { border: 1px solid #d1d5db; padding: 0.5rem; vertical-align: middle; }
+    .table-custom th { background: #f3f4f6; font-weight: 600; text-align: center; }
+    .table-section-header { background: #f9fafb; font-weight: 700; text-align: center; }
     .table-section-green { background: #e6f4ea; }
     .table-section-yellow { background: #fffbe6; }
+    .table-bordered th, .table-bordered td { border: 1px solid #e5e7eb; } /* Tailwind border-gray-200 */
+    .table-info-header { background-color: #f3f4f6; font-weight: bold; text-align: center; } /* For top info table headers */
   </style>
 </head>
 <body class="bg-gradient-to-br from-white to-gray-200 min-h-screen">
-  <!-- 헤더/네비 -->
-  <header class="w-full bg-white/80 backdrop-blur-md shadow z-50 sticky top-0">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="text-center py-2">
-        <span class="text-sm text-gray-800 font-semibold">Prototype</span>
+<header class="w-full bg-white/80 backdrop-blur-md shadow z-50 sticky top-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center py-2">
+      <span class="text-sm text-gray-800 font-semibold">Prototype</span>
+    </div>
+    <div class="flex items-center justify-between py-4">
+      <div class="flex items-center space-x-4">
+        <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+          <img src="Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
+        </a>
       </div>
-      <div class="flex items-center justify-between py-4">
-        <div class="flex items-center space-x-4">
-          <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
-            <img src="Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
-          </a>
-        </div>
-        <div class="flex-1 max-w-md mx-8">
-          <div class="relative">
-            <input type="text" placeholder="검색어를 입력해주세요." class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-              <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-              </svg>
-            </div>
+      <div class="flex-1 max-w-md mx-8">
+        <div class="relative">
+          <input type="text" placeholder="검색어를 입력해주세요." class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
           </div>
         </div>
-        <nav class="flex items-center space-x-6">
-          <a href="#" class="text-gray-900 font-medium">비교견적 신청</a>
-          <a href="#" class="text-gray-900 font-medium">이력조회</a>
-          <a href="#" class="text-gray-900 font-medium">재료/부품 정보</a>
-          <a href="#" class="text-gray-900 font-medium">FAQ</a>
-          <a href="#" class="text-gray-900 font-medium">Blog</a>
-          <button class="px-4 py-2 text-gray-900 bg-white/80 hover:bg-black hover:text-white rounded-lg font-medium border border-gray-300">Sign in</button>
-          <button class="px-4 py-2 bg-black/90 text-white hover:bg-gray-900 rounded-lg font-medium">Register</button>
-        </nav>
       </div>
-    </div>
-  </header>
+      <nav class="flex items-center space-x-6">
+        <a href="#" class="text-gray-900 font-medium">비교견적 신청</a>
+        <a href="#" class="text-gray-900 font-medium">이력조회</a>
+        <a href="#" class="text-gray-900 font-medium">재료/부품 정보</a>
+        <a href="#" class="text-gray-900 font-medium">FAQ</a>
+        <a href="#" class="text-gray-900 font-medium">Blog</a>
+        <th:block th:if="${session.user == null}">
+          <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인</a>
+          <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
+        </th:block>
 
-  <main class="max-w-7xl mx-auto px-4 py-8">
-    <div class="flex flex-col md:flex-row gap-6">
-      <!-- 좌측 정보/금액 -->
-      <div class="w-full md:w-1/3 space-y-4">
-        <div class="bg-white rounded-lg shadow p-4">
-          <div class="text-xl font-bold text-gray-700 mb-2">견적서 결과</div>
-          <div class="text-sm text-gray-500 mb-2">신청 일자 : <span th:text="${#dates.format(#dates.createNow(), 'yyyy-MM-dd')}"></span></div>
-          <div class="grid grid-cols-2 gap-2 text-xs text-gray-700 mb-2">
-            <div>가로(mm)</div><div th:text="${width}"></div>
-            <div>세로(mm)</div><div th:text="${height}"></div>
-            <div>내경</div><div th:text="${내경}"></div>
-            <div>외경</div><div th:text="${외경}"></div>
-          </div>
-        </div>
-        <div class="bg-white rounded-lg shadow p-4">
-          <div class="text-lg font-bold text-gray-700 mb-2">견적 금액</div>
-          <div class="grid grid-cols-2 gap-2 text-base mb-2">
-            <div>공사금액</div><div class="text-right">-</div>
-            <div>부가세</div><div class="text-right">-</div>
-            <div>총합계</div><div class="text-right font-bold">-</div>
-          </div>
-          <div class="text-xs text-gray-600 mt-2">
-            결제 조건: 계약시 60%, 완료시 40%<br>
-            유효 기간: 견적일로부터 30일/발주 후 4주<br>
-            LED Chip: A등급<br>
-            용도/도톨: 실내용 P2.5mm(일반형)
-          </div>
-        </div>
-      </div>
-      <!-- 우측 상세표 -->
-      <div class="w-full md:w-2/3 overflow-x-auto">
-        <table class="table w-full text-xs">
-          <thead>
-            <tr><th class="w-8">NO.</th><th colspan="4">내 역</th></tr>
-          </thead>
-          <tbody>
-            <tr class="table-section"><td>1</td><td colspan="4">전광판 규격</td></tr>
-            <tr><td></td><td>전광판 전체사이즈</td><td colspan="3" th:text="${내경}"></td></tr>
-            <tr><td></td><td>Led Pixel Pitch/ Chip Number</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Driving Method / Refresh Rate</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Module Size / Resolution</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Brightness / Screen Life Time</td><td colspan="3"></td></tr>
-            <tr><td></td><td>ScreenResolution</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Module Power Consumption</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Power Consumption(MAX)</td><td colspan="3"></td></tr>
-            <tr><td></td><td>Power Consumption(Average)</td><td colspan="3"></td></tr>
-            <tr><td></td><td>운영Program/기타 사양</td><td colspan="3"></td></tr>
-            <tr class="table-section"><td>2</td><td colspan="4">항목별 단가</td></tr>
-            <tr><td></td><td>LED Screen 전광판</td><td></td><td></td><td></td></tr>
-            <tr><td></td><td>철재베이스/제빙베이스/인입선</td><td></td><td></td><td></td></tr>
-            <tr><td></td><td>전기/통신</td><td></td><td></td><td></td></tr>
-            <tr><td></td><td>스카이/크레인</td><td></td><td></td><td></td></tr>
-            <tr><td></td><td>CMS/통합제어</td><td></td><td></td><td></td></tr>
-            <tr><td></td><td>운용 PC Spec/Monitor</td><td></td><td></td><td></td></tr>
-            <tr class="table-section-green"><td>2</td><td colspan="4">Spare Part</td></tr>
-            <tr><td></td><td colspan="4"></td></tr>
-            <tr class="table-section-yellow"><td colspan="5">
-              <div class="flex flex-col gap-1">
-                <div>• 최고급형 제어 특화 / 동기화 되는 네트워크 제어</div>
-                <div>• Mobile / Wifi / USB / PC/ TABLET무선 리모컨제어 특화</div>
-                <div>• 모든 자재는 KC 인증 마크</div>
-                <div>• 무상 A/S 1년</div>
-              </div>
-            </td></tr>
-            <tr><td colspan="4" class="text-right">합계 (VAT 별도)</td><td></td></tr>
-          </tbody>
-        </table>
-      </div>
+        <th:block th:if="${session.user != null}">
+          <span class="text-gray-700">[ <b th:text="${session.user.name}">사용자</b> ]</span>
+          <a href="/prototype/logout" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">로그아웃</a>
+        </th:block>
+      </nav>
     </div>
-    <div class="mt-8 flex justify-center">
-      <button class="w-full md:w-1/2 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition">다운로드 및 종료</button>
+  </div>
+</header>
+
+<main class="max-w-7xl mx-auto px-4 py-8 bg-white shadow-lg rounded-lg p-6">
+  <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">LED 스크린 전광판 견적서</h1>
+
+  <table class="table-custom mb-6 text-sm">
+    <thead>
+    <tr>
+      <th class="w-[10%] table-info-header">견적번호</th>
+      <td class="w-[20%]" th:text="${estimateNo}"></td>
+      <th class="w-[10%] table-info-header">견적일자</th>
+      <td class="w-[20%]" th:text="${estimateDate}"></td>
+      <th class="w-[10%] table-info-header">상호(주)</th>
+      <td class="w-[30%]" th:text="${companyName}"></td>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <th class="table-info-header">사업자번호</th>
+      <td th:text="${companyNo}"></td>
+      <th class="table-info-header">대표자명</th>
+      <td th:text="${ceoName}"></td>
+      <th class="table-info-header">전화번호</th>
+      <td th:text="${phone}"></td>
+    </tr>
+    <tr>
+      <th class="table-info-header">팩스번호</th>
+      <td th:text="${faxNumber ?: '정보없음'}"></td> <th class="table-info-header">발신인</th>
+      <td th:text="${sender}"></td>
+      <th class="table-info-header">이메일</th>
+      <td th:text="${email}"></td>
+    </tr>
+    <tr>
+      <th class="table-info-header">주소</th>
+      <td colspan="5" th:text="${address}"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="mb-6 border border-gray-300 rounded overflow-hidden">
+    <div class="bg-gray-100 p-3 font-semibold text-gray-700 text-center text-lg border-b border-gray-300">
+      견 적 금 액
     </div>
-  </main>
+    <div class="grid grid-cols-3 bg-white text-base">
+      <div class="p-3 border-r border-gray-300 text-center font-semibold">공사금액</div>
+      <div class="p-3 border-r border-gray-300 text-center font-semibold">부가세</div>
+      <div class="p-3 text-center font-semibold">총 합계</div>
+      <div class="p-3 border-r border-gray-300 text-center" th:text="${#numbers.formatInteger(공사금액, 0, 'COMMA')} + '원'"></div>
+      <div class="p-3 border-r border-gray-300 text-center" th:text="${#numbers.formatInteger(부가세, 0, 'COMMA')} + '원'"></div>
+      <div class="p-3 text-center font-bold text-xl text-blue-700" th:text="${#numbers.formatInteger(총합계, 0, 'COMMA')} + '원'"></div>
+    </div>
+  </div>
+
+  <table class="table-custom mb-6">
+    <thead>
+    <tr>
+      <th class="w-10">NO.</th>
+      <th class="w-[30%]" colspan="3">내 역</th>
+      <th class="w-[10%]">수량/식</th>
+      <th class="w-[15%]">단가</th>
+      <th class="w-[15%]">견적금액</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr class="table-section-header">
+      <td>1</td>
+      <td colspan="6">전광판 규격</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">전광판 본체사이즈</td>
+      <td colspan="3" th:text="${내경}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Led Pixel Pitch/ Chip Number</td>
+      <td colspan="3" th:text="${pixelPitch}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Driving Method / Refresh Rate</td>
+      <td colspan="3" th:text="${drivingMethod}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Module Size / Resolution</td>
+      <td colspan="3" th:text="${moduleSize}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Brightness / Screen Life Time</td>
+      <td colspan="3" th:text="${brightness}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Screen Resolution</td>
+      <td colspan="3" th:text="${해상도}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Module Power Consumption</td>
+      <td colspan="3" th:text="${modulePower}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Power Consumption(MAX)</td>
+      <td colspan="3" th:text="${powerMax}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">Power Consumption(Average)</td>
+      <td colspan="3" th:text="${powerAvg}"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">운영Program/기타 사양</td>
+      <td colspan="3" th:text="${etcSpec}"></td>
+    </tr>
+
+    <tr class="table-section-header">
+      <td>2</td>
+      <td colspan="6">항목별 단가</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">LED Screen 전광판</td>
+      <td th:text="${item1Unit}"></td> <td></td> <td th:text="${item1Price} + '원'"></td> </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">철재베이스/제빙베이스/인입선</td>
+      <td th:text="${item2Unit}"></td>
+      <td></td>
+      <td th:text="${item2Price} + '원'"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">전기/통신</td>
+      <td colspan="3" class="text-center">별도</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">스카이/크레인</td>
+      <td colspan="3" class="text-center">제외</td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">CMS/통합제어</td>
+      <td th:text="${item5Unit}"></td>
+      <td></td>
+      <td th:text="${item5Price} + '원'"></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td colspan="3">운용 PC Spec/Monitor</td>
+      <td th:text="${item6Unit}"></td>
+      <td></td>
+      <td th:text="${item6Price} + '원'"></td>
+    </tr>
+
+    <tr class="table-section-green">
+      <td></td>
+      <td colspan="6">Spare Part: <span th:text="${sparePart}"></span></td>
+    </tr>
+    <tr class="table-section-yellow">
+      <td colspan="7" class="py-2">
+        <div class="flex flex-col gap-1 px-2">
+          <div th:text="${desc1}"></div>
+          <div th:text="${desc2}"></div>
+          <div th:text="${desc3}"></div>
+          <div th:text="${desc4}"></div>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="6" class="text-right font-bold">합계 (VAT 별도)</td>
+      <td th:text="${#numbers.formatInteger(공사금액, 0, 'COMMA')} + '원'"></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="bg-white rounded-lg shadow p-4 mb-6 text-sm text-gray-700 border border-gray-300">
+    <div class="grid grid-cols-2 gap-2">
+      <div>결제 조건: <span th:text="${paymentCondition}"></span></div>
+      <div>유효 기간: <span th:text="${validPeriod}"></span></div>
+      <div>LED Chip: <span th:text="${ledChip}"></span></div>
+      <div>용도/도톨: <span th:text="${usage}"></span></div>
+    </div>
+  </div>
+
+
+  <div class="flex justify-end mt-8 mr-12 text-center text-gray-700">
+    <div class="border-b border-gray-400 pb-2 mb-1 w-48"></div>
+    <p class="font-bold">대표이사 (인)</p>
+  </div>
+
+  <div class="mt-8 flex justify-center">
+    <a th:href="@{/prototype/downloadEstimate(email2=${email2}, installDay=${installDay})}"
+       class="w-full md:w-1/2 bg-black text-white py-3 rounded-lg font-semibold hover:bg-gray-800 transition text-center"
+       download>
+      다운로드 및 종료
+    </a>
+  </div>
+</main>
 </body>
-</html> 
+</html>

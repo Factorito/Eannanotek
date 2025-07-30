@@ -3,9 +3,10 @@ package prototype.example.demo.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Entity
 @Table(name = "ci")
-@IdClass(CiId.class)
 @Data
 public class Ci {
 
@@ -13,11 +14,11 @@ public class Ci {
     @Column(length = 255)
     private String email2;
 
-    @Id
-    private int installDay;
+
+    private LocalDate installDay;
 
     private String installReigon;
-    private String caseType;
+    private String CaseType;
     private String module;
     private String installEnviroment;
     private String field;
