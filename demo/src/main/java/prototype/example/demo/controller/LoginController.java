@@ -15,36 +15,11 @@ import java.util.Optional;
 
 
 @Controller
-@RequestMapping(value = "/prototype")
+//@RequestMapping("/prototype")
 public class LoginController{
 
     @Autowired
     private UserRepository userRepository;
-
-
-    @PostMapping("/login")
-    public String login(
-            @RequestParam String email,
-            @RequestParam String password,
-            HttpSession session,
-            RedirectAttributes redirectAttributes
-    ) {
-        Optional<User> userOpt = userRepository.findByEmailAndPassword(email, password);
-        if (userOpt.isPresent()) {
-            User user = userOpt.get();
-            session.setAttribute("user", user);
-            if(user.isAA()){
-                session.setAttribute("isAdmin", true); // 세션에 관리자임을 표시
-                return "redirect:/prototype/main";
-            }else{
-                session.setAttribute("isAdmin", false); // 세션에 일반 사용자임을 표시
-                return "redirect:/prototype/main";
-            }
-        } else {
-            redirectAttributes.addFlashAttribute("error", "이메일이나 비밀번호가 일치하지 않습니다.");
-            return "redirect:/prototype/login";
-        }
-    }
 
     @GetMapping("/logout")
     public String logout(HttpSession session) {
