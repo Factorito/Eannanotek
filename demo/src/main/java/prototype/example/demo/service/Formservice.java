@@ -48,7 +48,7 @@ public class Formservice {
         // formulaName은 이 메서드의 파라미터로 받았으므로, 그대로 사용
         formulaName = "TOTAL_ESTIMATE_FORMULA";
         String finalFormulaName = formulaName;
-        Formula totalEstimateFormula = formulaRepository.findByName(formulaName) // 예: "TOTAL_ESTIMATE_FORMULA"
+        Formula totalEstimateFormula = (Formula) formulaRepository.findByName(formulaName) // 예: "TOTAL_ESTIMATE_FORMULA"
                 .orElseThrow(() -> new RuntimeException("총 예상 견적 수식 없음: " + finalFormulaName));
 
         // 5. 수식 계산

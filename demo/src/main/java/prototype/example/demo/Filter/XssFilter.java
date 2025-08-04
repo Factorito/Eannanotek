@@ -1,52 +1,32 @@
 package prototype.example.demo.Filter;
 
+import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
-import org.owasp.html.HtmlPolicyBuilder;
-import org.owasp.html.PolicyFactory;
-import java.util.regex.Pattern;
+import java.io.IOException;
 
+// 이 필터는 들어오는 요청을 감싸고 다음 필터로 전달하는 역할만 합니다.
+public class XssFilter implements Filter {
 
-public class XssFilter extends HttpServletRequestWrapper {
-
-    private static final PolicyFactory POLICY_FACTORY = new HtmlPolicyBuilder().toFactory();
-
-    public XssFilter(HttpServletRequest request) {
-        super(request);
-    }
-
-    // 파라미터 값 정화
     @Override
-    public String getParameter(String name) {
-        String value = super.getParameter(name);
-        return value == null ? null : sanitize(value);
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        // HTTP 요청인 경우에만 XssRequestWrapper로 감쌉니다.
+        if (request instanceof HttpServletRequest) {
+            HttpServletRequest httpServletRequest = (HttpServletRequest) request;
+            // XssRequestWrapper를 사용하여 요청을 감싸고 다음 필터 체인으로 전달
+            chain.doFilter(new XssRequestWrapper(httpServletRequest), response);
+        } else {
+            // HTTP 요청이 아니면 그대로 다음 필터로 전달
+            chain.doFilter(request, response);
+        }
     }
 
-    // 파라미터 값 배열 정화
     @Override
-    public String[] getParameterValues(String name) {
-        String[] values = super.getParameterValues(name);
-        if (values == null) {
-            return null;
-        }
-        for (int i = 0; i < values.length; i++) {
-            values[i] = sanitize(values[i]);
-        }
-        return values;
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // 초기화 로직
     }
 
-    // 헤더 정화
     @Override
-    public String getHeader(String name) {
-        String value = super.getHeader(name);
-        return value == null ? null : sanitize(value);
-    }
-
-    // OWASP Sanitizer를 사용하여 문자열을 정화하는 메서드
-    private String sanitize(String value) {
-        if (value == null || value.trim().isEmpty()) {
-            return value;
-        }
-        return POLICY_FACTORY.sanitize(value);
+    public void destroy() {
+        // 소멸 로직
     }
 }
