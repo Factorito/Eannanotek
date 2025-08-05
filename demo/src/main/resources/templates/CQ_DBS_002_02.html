@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Prototype - 커뮤니티 글쓰기</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN 추가 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <script>
     tailwind.config = {
       theme: {
@@ -94,6 +96,56 @@
     .editor-btn {
       @apply p-2 rounded-md hover:bg-gray-200 transition-colors duration-200;
     }
+
+    /* 모달 스타일 */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border-radius: 0.75rem;
+      width: 80%;
+      max-width: 600px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #3B82F6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
 </head>
 <body class="bg-gradient-to-br from-white to-gray-200 min-h-screen flex flex-col">
@@ -118,9 +170,7 @@
                  placeholder="검색어를 입력해주세요."
                  class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
           <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
+            <i class="fas fa-search text-gray-500"></i>
           </div>
         </div>
       </div>
@@ -130,7 +180,7 @@
         <a href="#history" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
         <a href="#materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
         <a href="#faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
-        <a href="#blog" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">Blog</a>
+        <a href="/prototype/mi" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">글쓰기</a>
         <th:block th:if="${session.user == null}">
           <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Sign In</a>
           <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">Register</a>
@@ -150,7 +200,10 @@
   <div class="glass bg-white/80 p-8 rounded-xl shadow-xl w-full max-w-4xl">
     <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">커뮤니티 글쓰기</h2>
 
-    <form action="/community/write" method="post" enctype="multipart/form-data">
+    <!-- 폼 태그 -->
+    <form id="postForm" action="/prototype/submit" method="post" enctype="multipart/form-data">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
       <!-- 제목 입력 필드 -->
       <div class="mb-6">
         <input type="text" id="postTitle" name="postTitle" placeholder="제목을 입력해주세요"
@@ -158,97 +211,83 @@
       </div>
 
       <!-- 텍스트 에디터 툴바 -->
+      <!-- flex-wrap을 사용하여 아이콘들이 한 줄에 최대한 배치되고, 공간이 부족하면 자동으로 줄바꿈됩니다. -->
       <div class="flex flex-wrap items-center gap-2 p-2 bg-gray-100 rounded-t-lg border-b border-gray-300 mb-0">
-        <!-- Normal text 드롭다운 (예시) -->
+        <!-- 게시판 종류 드롭다운 -->
         <div class="relative group">
-          <button type="button" class="editor-btn flex items-center">
-            Normal text
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-          </button>
-          <!-- 드롭다운 메뉴 아이템 (실제 기능 구현 필요) -->
+          <select id="boardType" name="boardType" class="editor-btn appearance-none bg-white border border-gray-300 rounded-md py-2 px-3 pr-8 shadow-sm focus:outline-none focus:ring-2 focus:ring-black">
+            <option value="공지">공지</option>
+            <option value="FAQ">FAQ</option>
+            <option value="정보">정보</option>
+          </select>
+          <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+            <i class="fas fa-caret-down"></i>
+          </div>
         </div>
-        <!-- 공지 드롭다운 (예시) -->
-        <div class="relative group">
-          <button type="button" class="editor-btn flex items-center">
-            공지
-            <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-          </button>
-          <!-- 드롭다운 메뉴 아이템 (실제 기능 구현 필요) -->
-        </div>
-
-        <!-- 텍스트 정렬 및 스타일링 버튼 -->
-        <button type="button" class="editor-btn" title="Left Align">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h10M4 14h16M4 18h10"></path></svg>
+        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- 구분선 -->
+        <button type="button" class="editor-btn" title="Bold" onclick="formatText('bold')">
+          <i class="fas fa-bold"></i>
         </button>
-        <button type="button" class="editor-btn" title="Center Align">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+        <button type="button" class="editor-btn" title="Italic" onclick="formatText('italic')">
+          <i class="fas fa-italic"></i>
         </button>
-        <button type="button" class="editor-btn" title="Right Align">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+        <button type="button" class="editor-btn" title="Underline" onclick="formatText('underline')">
+          <i class="fas fa-underline"></i>
         </button>
-        <button type="button" class="editor-btn" title="Justify">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path></svg>
+        <button type="button" class="editor-btn" title="Strikethrough" onclick="formatText('strikeThrough')">
+          <i class="fas fa-strikethrough"></i>
         </button>
-        <button type="button" class="editor-btn" title="Bold">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 11V3H6v8a4 4 0 004 4h2a4 4 0 004-4v-4h-4z"></path></svg>
+        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- 구분선 -->
+        <button type="button" class="editor-btn" title="Bullet List" onclick="formatText('insertUnorderedList')">
+          <i class="fas fa-list-ul"></i>
         </button>
-        <button type="button" class="editor-btn" title="Italic">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 4h-4l-3 16h4l3-16z"></path></svg>
+        <button type="button" class="editor-btn" title="Numbered List" onclick="formatText('insertOrderedList')">
+          <i class="fas fa-list-ol"></i>
         </button>
-        <button type="button" class="editor-btn" title="Underline">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 19h16M12 4v12a4 4 0 004 4h0a4 4 0 004-4V4"></path></svg>
+        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- 구분선 -->
+        <button type="button" class="editor-btn" title="Link" onclick="insertLink()">
+          <i class="fas fa-link"></i>
         </button>
-        <button type="button" class="editor-btn" title="Strikethrough">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a4 4 0 01-4-4V4h22v4a4 4 0 01-4 4M5 12a4 4 0 00-4 4v4h22v-4a4 4 0 00-4-4"></path></svg>
+        <button type="button" class="editor-btn" title="Image" onclick="document.getElementById('imageUpload').click()">
+          <i class="fas fa-image"></i>
         </button>
-        <button type="button" class="editor-btn" title="Text Color">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10M12 17V3M12 3L7 8M12 3L17 8"></path></svg>
+        <div class="h-6 w-px bg-gray-300 mx-1"></div> <!-- 구분선 -->
+        <button type="button" class="editor-btn" title="Code Block" onclick="formatText('insertCode')">
+          <i class="fas fa-code"></i>
         </button>
-        <button type="button" class="editor-btn" title="Highlight Color">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21l-7-7m7 7l7-7m-7 7V3"></path></svg>
+        <button type="button" class="editor-btn" title="Quote" onclick="formatText('insertQuote')">
+          <i class="fas fa-quote-right"></i>
         </button>
-        <button type="button" class="editor-btn" title="Bullet List">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Numbered List">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Link">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101M16.172 13.828a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Image">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Code Block">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Quote">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.25 7.5V10.5C8.25 11.3284 8.92157 12 9.75 12H14.25C15.0784 12 15.75 11.3284 15.75 10.5V7.5M8.25 7.5L12 3.75L15.75 7.5M8.25 7.5H15.75M8.25 7.5V10.5C8.25 11.3284 8.92157 12 9.75 12H14.25C15.0784 12 15.75 11.3284 15.75 10.5V7.5"></path></svg>
-        </button>
-        <button type="button" class="editor-btn" title="Horizontal Rule">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path></svg>
+        <button type="button" class="editor-btn" title="Horizontal Rule" onclick="formatText('insertHorizontalRule')">
+          <i class="fas fa-minus"></i>
         </button>
       </div>
 
-      <!-- 내용 입력 (텍스트 에디터 영역) -->
-      <div class="mb-6 border border-gray-300 rounded-b-lg p-4 bg-white min-h-[300px]">
-                <textarea id="postContent" name="postContent" placeholder="내용을 입력해주세요"
-                          class="w-full h-full resize-none focus:outline-none text-gray-700" rows="10"></textarea>
+      <!-- 내용 입력 (contenteditable div로 변경) -->
+      <div id="postContent" contenteditable="true"
+           class="w-full h-full resize-none focus:outline-none text-gray-700 p-4 border border-gray-300 rounded-b-lg bg-white min-h-[300px]">
+        내용을 입력해주세요
       </div>
+      <!-- 실제 폼 제출을 위한 hidden input -->
+      <input type="hidden" id="hiddenPostContent" name="postContent">
 
-      <!-- 이미지 첨부 영역 (내용 예시) -->
-      <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-white flex items-center justify-center min-h-[150px] text-gray-400">
+
+
+      <!-- 이미지 첨부 영역 -->
+      <div class="mb-6 p-4 border border-gray-300 rounded-lg bg-white flex flex-col items-center justify-center min-h-[150px] text-gray-400">
         <label for="imageUpload" class="cursor-pointer flex flex-col items-center">
-          <svg class="w-12 h-12 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <i class="fas fa-cloud-upload-alt text-5xl mb-2"></i>
           <span>이미지를 첨부하려면 클릭하세요</span>
-          <input type="file" id="imageUpload" name="image" accept="image/*" class="hidden">
+          <input type="file" id="imageUpload" name="image" accept="image/*" class="hidden" onchange="previewImage(event)">
         </label>
+        <div id="imagePreview" class="mt-4 flex flex-wrap gap-2"></div>
       </div>
       <p class="text-gray-500 text-sm mb-8">(내용 예시)</p>
 
+
       <!-- 하단 버튼 -->
       <div class="flex justify-end space-x-4">
-        <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300 shadow-md">수정</button>
+        <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300 shadow-md">작성</button>
         <button type="button" onclick="history.back()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 shadow-md">취소</button>
       </div>
     </form>
@@ -268,41 +307,27 @@
         </div>
         <div class="flex space-x-4">
           <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
+            <i class="fab fa-facebook-f"></i>
           </a>
           <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
+            <i class="fab fa-twitter"></i>
           </a>
           <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
+            <i class="fab fa-instagram"></i>
           </a>
           <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
+            <i class="fab fa-youtube"></i>
           </a>
           <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
+            <i class="fab fa-linkedin-in"></i>
           </a>
         </div>
         <div class="flex space-x-3">
           <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/>
-            </svg>
+            <i class="fas fa-desktop text-white"></i>
           </div>
           <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-            </svg>
+            <i class="fas fa-mobile-alt text-white"></i>
           </div>
         </div>
       </div>
@@ -325,9 +350,7 @@
         <h3 class="text-lg font-semibold mb-4 text-gray-100">Resources</h3>
         <ul class="space-y-2">
           <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-            </svg>
+            <i class="fas fa-blog mr-2"></i>
             Blog
           </a></li>
           <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">시공 예시</a></li>
@@ -353,307 +376,123 @@
 </footer>
 
 <script>
-  // 페이지 로드 시 URL에 'error=true'가 있는지 확인하고 메시지 표시
-  window.onload = function () {
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('error') === 'true') {
-      alert("이메일 또는 비밀번호가 일치하지 않습니다.");
+  // contenteditable div를 참조합니다.
+  const postContent = document.getElementById('postContent');
+  // 실제 폼 제출을 위한 hidden input을 참조합니다.
+  const hiddenPostContent = document.getElementById('hiddenPostContent');
+
+  // 폼 제출 시 contenteditable의 HTML 내용을 hidden input에 복사
+  document.getElementById('postForm').addEventListener('submit', function() {
+    hiddenPostContent.value = postContent.innerHTML;
+  });
+
+  // 텍스트 서식 적용 함수 (document.execCommand 사용)
+  function formatText(command) {
+    // contenteditable div에 포커스 설정
+    postContent.focus();
+
+    // 특정 명령에 대한 특별 처리
+    if (command === 'insertCode') {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const selectedText = range.toString();
+        document.execCommand('insertHTML', false, `<pre><code>${selectedText}</code></pre>`);
+      }
+    } else if (command === 'insertQuote') {
+      const selection = window.getSelection();
+      if (selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const selectedText = range.toString();
+        document.execCommand('insertHTML', false, `<blockquote>${selectedText}</blockquote>`);
+      }
+    } else if (command === 'insertHorizontalRule') {
+      document.execCommand('insertHTML', false, '<hr>');
+    }
+    else {
+      // 일반적인 서식 명령 처리
+      document.execCommand(command, false, null);
     }
   }
-</script>
 
-</body>
-</html>
-```
-제공해주신 `CQ_LOGIN_001.html` 파일을 다시 확인했습니다.
+  // 링크 삽입 함수
+  function insertLink() {
+    postContent.focus(); // contenteditable div에 포커스 설정
+    const url = prompt("링크 URL을 입력하세요:");
+    if (url) {
+      document.execCommand('createLink', false, url);
+    }
+  }
 
-### 🚨 문제 진단: 여전히 `name="username"`
+  // 이미지 미리보기 함수
+  function previewImage(event) {
+    const imagePreview = document.getElementById('imagePreview');
+    imagePreview.innerHTML = ''; // 기존 미리보기 초기화
 
-제가 이전에 `name="username"`을 `name="email"`로 변경해야 한다고 말씀드렸는데, **제공해주신 최신 `CQ_LOGIN_001.html` 파일에는 여전히 `name="username"`으로 되어 있습니다.**
+    const files = event.target.files;
+    if (files) {
+      Array.from(files).forEach(file => {
+        if (file.type.startsWith('image/')) {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const imgContainer = document.createElement('div');
+            imgContainer.className = 'relative w-32 h-32 rounded-lg overflow-hidden border border-gray-300';
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.alt = file.name;
+            img.className = 'w-full h-full object-cover';
 
-```html
-<div class="mb-4">
-  <label for="username" class="block text-gray-700 mb-2">Email</label>
-  <input type="email"  name="username" id="username" placeholder="이메일" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black">
-</div>
-```SecurityConfig.java`에서는 로그인 시 사용자 이름을 `email`이라는 파라미터 이름으로 받도록 설정되어 있습니다:
-`usernameParameter("email")`
+            const removeBtn = document.createElement('button');
+            removeBtn.className = 'absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs';
+            removeBtn.innerHTML = '&times;';
+            removeBtn.onclick = () => {
+              imgContainer.remove();
+              // 실제 파일 입력에서 해당 파일 제거 로직은 복잡하므로 백엔드 처리 시 고려
+            };
 
-따라서 HTML 폼에서 이메일 입력 필드의 `name` 속성이 `username`이 아닌 **`email`**이어야 합니다.
-
-### ✅ 최종 해결책: `CQ_LOGIN_001.html` 수정
-
-아래와 같이 `CQ_LOGIN_001.html` 파일의 해당 부분을 수정해주세요.
-
-```html
-<!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Prototype - 비교견적 웹사이트</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          colors: {
-            primary: '#3B82F6',
-            secondary: '#1E40AF',
-            accent: '#06B6D4',
-            dark: '#1F2937',
-            light: '#F8FAFC'
-          }
+            imgContainer.appendChild(img);
+            imgContainer.appendChild(removeBtn);
+            imagePreview.appendChild(imgContainer);
+          };
+          reader.readAsDataURL(file);
         }
-      }
+      });
     }
-  </script>
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+  }
 
-    body {
-      font-family: 'Inter', sans-serif;
-      background: linear-gradient(120deg, #f5f6fa 0%, #e0e0e0 100%);
-    }
-
-    .gradient-bg {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .glass-effect {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .billboard-shadow {
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    }
-
-    .building {
-      background: linear-gradient(to top, #374151, #4B5563);
-    }
-
-    .social-icon {
-      transition: all 0.3s ease;
-    }
-
-    .social-icon:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
-    }
-
-    .nav-link {
-      position: relative;
-    }
-
-    .nav-link::after {
-      content: '';
-      position: absolute;
-      bottom: -2px;
-      left: 0;
-      width: 0;
-      height: 2px;
-      background: #111;
-      transition: width 0.3s ease;
-    }
-
-    .nav-link:hover::after {
-      width: 100%;
-    }
-    .glass {
-      background: rgba(255,255,255,0.7);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 1.5rem;
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-    .glass-dark {
-      background: rgba(30,30,30,0.7);
-      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-radius: 1.5rem;
-      border: 1px solid rgba(0,0,0,0.18);
-    }
-  </style>
-</head>
-<body class="bg-gradient-to-br from-white to-gray-200 min-h-screen">
-
-<header class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-lg z-50">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="text-center py-2">
-      <span class="text-sm text-gray-800 font-semibold">Prototype</span>
-    </div>
-    <div class="flex items-center justify-between py-4">
-      <div class="flex items-center space-x-4">
-        <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
-          <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
-        </a>
-      </div>
-      <div class="flex-1 max-w-md mx-8">
-        <div class="relative">
-          <input type="text"
-                 placeholder="검색어를 입력해주세요."
-                 class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
-          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <svg class="h-5 w-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-            </svg>
-          </div>
+  // 모달 관련 요소 가져오기 (LLM 설명용)
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modal-body" class="text-center">
+                <div class="loading-spinner"></div>
+                <p class="mt-4 text-gray-700">설명을 생성 중입니다...</p>
+            </div>
         </div>
-      </div>
-      <nav class="flex items-center space-x-6">
-        <a href="/prototype/qeq1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">비교견적 신청</a>
-        <a href="#history" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
-        <a href="#materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
-        <a href="#faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
-        <a href="#blog" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">Blog</a>
-        <th:block th:if="${session.user == null}">
-          <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인</a>
-          <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
-        </th:block>
+    `;
+  document.body.appendChild(modal);
 
-        <th:block th:if="${session.user != null}">
-          <span class="text-gray-700">[ <b th:text="${session.user.name}">사용자</b> ]</span>
-          <a href="/prototype/logout" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">로그아웃</a>
-        </th:block>
-      </nav>
-    </div>
-  </div>
-</header>
+  const closeModalBtn = modal.querySelector('.close-button');
+  const modalBody = modal.querySelector('#modal-body');
 
-<main class="flex-grow flex items-center justify-center py-20">
-  <div class="glass bg-white/80 p-10 rounded-xl shadow-xl w-full max-w-md">
-    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">로그인</h2>
+  closeModalBtn.onclick = function() {
+    modal.style.display = 'none';
+  }
 
-    <div th:if="${param.error}" class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
-      <span class="block sm:inline">이메일 또는 비밀번호가 일치하지 않습니다.</span>
-    </div>
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
 
-    <form method="post" action="/authenticate">
-      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
-
-      <div class="mb-4">
-        <label for="username" class="block text-gray-700 mb-2">Email</label>
-        <!-- 여기 name="username"을 name="email"로 변경해야 합니다. -->
-        <input type="email"  name="email" id="username" placeholder="이메일" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black">
-      </div>
-      <div class="mb-4">
-        <label for="password" class="block text-gray-700 mb-2">Password</label>
-        <input type="password"  name="password" id="password"  placeholder="비밀번호" required class="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-black">
-      </div>
-      <div class="text-right text-sm mb-6">
-        <a href="/forgot" class="text-gray-500 hover:underline">forgot password?</a>
-      </div>
-      <button type="submit" class="w-full bg-black text-white py-2 rounded hover:bg-gray-900">log in</button>
-    </form>
-  </div>
-</main>
-
-<footer class="bg-black/80 text-white backdrop-blur-md">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-      <div class="space-y-6">
-        <div class="flex items-center space-x-3">
-          <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
-            <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-10 h-10 object-contain" />
-          </a>
-          <span class="text-xl font-bold">Eannanotek</span>
-        </div>
-        <div class="flex space-x-4">
-          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-            </svg>
-          </a>
-          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-            </svg>
-          </a>
-          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zM12 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-            </svg>
-          </a>
-          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
-            </svg>
-          </a>
-          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
-            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
-            </svg>
-          </a>
-        </div>
-        <div class="flex space-x-3">
-          <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M21 2H3c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h7l-2 3v1h8v-1l-2-3h7c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 12H3V4h18v10z"/>
-            </svg>
-          </div>
-          <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
-            <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M17 1.01L7 1c-1.1 0-2 .9-2 2v18c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V3c0-1.1-.9-1.99-2-1.99zM17 19H7V5h10v14z"/>
-            </svg>
-          </div>
-        </div>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-4 text-gray-100">Use cases</h3>
-        <ul class="space-y-2">
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UI design</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UX design</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-4 text-gray-100">Explore</h3>
-        <ul class="space-y-2">
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">비교견적 신청</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">이력 조회</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">재료/부품 정보</a></li>
-        </ul>
-      </div>
-      <div>
-        <h3 class="text-lg font-semibold mb-4 text-gray-100">Resources</h3>
-        <ul class="space-y-2">
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
-            <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
-            </svg>
-            Blog
-          </a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">시공 예시</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 재료</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 부품</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Support</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">설정</a></li>
-          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">관리자 모드</a></li>
-        </ul>
-      </div>
-    </div>
-    <div class="border-t border-gray-700 mt-12 pt-8">
-      <div class="flex flex-col md:flex-row justify-between items-center">
-        <p class="text-gray-400 text-sm">© 2024 Eannanotek. All rights reserved.</p>
-        <div class="flex space-x-6 mt-4 md:mt-0">
-          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Privacy Policy</a>
-          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Terms of Service</a>
-          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Cookie Policy</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<script>
   // 페이지 로드 시 URL에 'error=true'가 있는지 확인하고 메시지 표시
   window.onload = function () {
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('error') === 'true') {
-      alert("이메일 또는 비밀번호가 일치하지 않습니다.");
+      modal.style.display = 'flex';
+      modalBody.innerHTML = `<p class="text-red-500">이메일 또는 비밀번호가 일치하지 않습니다.</p>`;
     }
   }
 </script>

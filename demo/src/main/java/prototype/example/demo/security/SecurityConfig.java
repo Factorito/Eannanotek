@@ -34,7 +34,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.ignoringRequestMatchers(
-                        "/h2-console/**",
+
                         "/prototype/register",
                         "/prototype/send-security-code"
                 ))
@@ -44,15 +44,16 @@ public class SecurityConfig {
                                 "/prototype/login",
                                 "/prototype/register",
                                 "/prototype/send-security-code",
+                                "/prototype/information",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/Eannanotek.png",
                                 "/favicon.ico",
-                                "/h2-console/**"
+                                "prototype/mi"
                         ).permitAll()
                         .requestMatchers("/prototype/qeq1", "/prototype/qeq2", "/prototype/submit").authenticated()
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/write/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
