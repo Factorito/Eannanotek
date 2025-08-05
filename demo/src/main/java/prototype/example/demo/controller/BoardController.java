@@ -26,7 +26,7 @@ public class BoardController {
         return "CQ_MI_001";
     }
 
-    @PostMapping(value = "/submit")
+    @PostMapping(value = "/board-submit")
     public String submit(@ModelAttribute BoardDto boardDto){
         boardService.save(boardDto);
         return "redirect:/prototype/main";

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -181,13 +181,13 @@
         <a href="#materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
         <a href="#faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
         <a href="/prototype/mi" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">글쓰기</a>
-        <th:block th:if="${session.user == null}">
+        <th:block sec:authorize="isAnonymous()">
           <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Sign In</a>
           <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">Register</a>
         </th:block>
 
-        <th:block th:if="${session.user != null}">
-          <span class="text-gray-700">[ <b th:text="${session.user.name}">사용자</b> ]</span>
+        <th:block sec:authorize="isAuthenticated()">
+          <span class="text-gray-700">[ <b th:text="${#authentication.name}">사용자</b> ]</span>
           <a href="/prototype/logout" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">로그아웃</a>
         </th:block>
       </nav>
@@ -287,7 +287,7 @@
 
       <!-- 하단 버튼 -->
       <div class="flex justify-end space-x-4">
-        <button type="submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300 shadow-md">작성</button>
+        <button type="board-submit" class="px-6 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300 shadow-md">작성</button>
         <button type="button" onclick="history.back()" class="px-6 py-3 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors duration-300 shadow-md">취소</button>
       </div>
     </form>
