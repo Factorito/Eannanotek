@@ -2,12 +2,13 @@ package prototype.example.demo.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import prototype.example.demo.Dto.BoardDto;
 import prototype.example.demo.service.BoardService;
+
+import java.io.IOException;
+import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
@@ -26,9 +27,9 @@ public class BoardController {
         return "CQ_MI_001";
     }
 
-    @PostMapping(value = "/board-submit")
-    public String submit(@ModelAttribute BoardDto boardDto){
-        boardService.save(boardDto);
+    @PostMapping(value = "/board/submit")
+    public String submit(@ModelAttribute BoardDto boardDto, @RequestParam("files") List<MultipartFile> files) throws IOException {
+        boardService.save(boardDto, files);
         return "redirect:/prototype/main";
     }
 }
