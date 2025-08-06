@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Prototype - 비밀번호 재설정</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: '#3B82F6',
+            secondary: '#1E40AF',
+            accent: '#06B6D4',
+            dark: '#1F2937',
+            light: '#F8FAFC'
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(120deg, #f5f6fa 0%, #e0e0e0 100%);
+    }
+
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .glass-effect {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .billboard-shadow {
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    }
+
+    .building {
+      background: linear-gradient(to top, #374151, #4B5563);
+    }
+
+    .social-icon {
+      transition: all 0.3s ease;
+    }
+
+    .social-icon:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .nav-link {
+      position: relative;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #111;
+      transition: width 0.3s ease;
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+    .glass {
+      background: rgba(255,255,255,0.7);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+    .glass-dark {
+      background: rgba(30,30,30,0.7);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 1.5rem;
+      border: 1px solid rgba(0,0,0,0.18);
+    }
+
+    /* 모달 스타일 */
+    .modal {
+      display: none; /* Hidden by default */
+      position: fixed; /* Stay in place */
+      z-index: 1000; /* Sit on top */
+      left: 0;
+      top: 0;
+      width: 100%; /* Full width */
+      height: 100%; /* Full height */
+      overflow: auto; /* Enable scroll if needed */
+      background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+      justify-content: center;
+      align-items: center;
+    }
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border-radius: 0.75rem;
+      width: 80%;
+      max-width: 400px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      position: relative;
+      text-align: center;
+    }
+    .close-button {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: black;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .loading-spinner {
+      border: 4px solid rgba(0, 0, 0, 0.1);
+      border-top: 4px solid #3B82F6;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-br from-white to-gray-200 min-h-screen flex flex-col">
+
+<!-- 헤더 -->
+<header class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-lg z-50">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="text-center py-2">
+      <a href="/prototype/main" class="text-sm text-gray-800 font-semibold hover:underline">Prototype</a>
+    </div>
+    <div class="flex items-center justify-between py-4">
+      <!-- 로고 -->
+      <div class="flex items-center space-x-4">
+        <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+          <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
+        </a>
+      </div>
+      <!-- 검색바 -->
+      <div class="flex-1 max-w-md mx-8">
+        <div class="relative">
+          <input type="text"
+                 placeholder="검색어를 입력해주세요."
+                 class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <i class="fas fa-search text-gray-500"></i>
+          </div>
+        </div>
+      </div>
+      <!-- 네비게이션 -->
+      <nav class="flex items-center space-x-6">
+        <a href="/prototype/qeq1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">견적 신청</a>
+        <a href="/prototype/main-history" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
+        <a href="/prototype/materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
+        <a href="/prototype/faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
+        <a href="/prototype/blog" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">Blog</a>
+        <th:block th:if="${session.user == null}">
+          <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인 In</a>
+          <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
+        </th:block>
+
+        <th:block th:if="${session.user != null}">
+          <a href="/prototype/main-settings"><span class="text-gray-700">[ <b th:text="${session.user.email}">사용자</b> ]</span></a>
+          <form th:action="@{/prototype/logout}" method="post" style="display:inline;">
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <button type="submit" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">
+              로그아웃
+            </button>
+          </form>
+        </th:block>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<!-- 메인 컨텐츠 - 비밀번호 재설정 폼 -->
+<main class="flex-grow flex justify-center items-center py-20 px-4 sm:px-6 lg:px-8">
+  <div class="glass bg-white/80 p-8 rounded-xl shadow-xl w-full max-w-md">
+    <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">비밀번호 재설정</h2>
+
+    <form action="/prototype/reset-password" method="post">
+      <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+      <!-- 이메일 입력 -->
+      <div class="mb-4">
+        <label for="email" class="block text-gray-700 text-sm font-semibold mb-2">이메일</label>
+        <input type="email" id="email" name="email" placeholder="이메일 주소"
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" required>
+      </div>
+
+      <!-- 보안 코드 전송 버튼 -->
+      <div class="mb-6">
+        <button type="button" id="sendSecurityCodeBtn" class="w-full px-4 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-300 shadow-md">보안 코드 전송</button>
+      </div>
+
+      <!-- 보안 코드 입력 -->
+      <div class="mb-4">
+        <label for="securityCode" class="block text-gray-700 text-sm font-semibold mb-2">보안 코드</label>
+        <input type="text" id="securityCode" name="securityCode" placeholder="수신한 보안 코드"
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" required>
+      </div>
+
+      <!-- 새 비밀번호 입력 -->
+      <div class="mb-4">
+        <label for="newPassword" class="block text-gray-700 text-sm font-semibold mb-2">새 비밀번호</label>
+        <input type="password" id="newPassword" name="newPassword" placeholder="새 비밀번호 (8자 이상)"
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" minlength="8" required>
+      </div>
+
+      <!-- 새 비밀번호 확인 입력 -->
+      <div class="mb-6">
+        <label for="confirmPassword" class="block text-gray-700 text-sm font-semibold mb-2">새 비밀번호 확인</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="새 비밀번호 다시 입력"
+               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-black" minlength="8" required>
+      </div>
+
+      <!-- 비밀번호 재설정 버튼 -->
+      <button type="submit" class="w-full px-4 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors duration-300 shadow-md">비밀번호 재설정</button>
+    </form>
+
+    <!-- 메시지 표시 영역 -->
+    <div id="messageContainer" class="mt-4 text-center text-sm">
+      <p th:if="${param.error}" class="text-red-500">
+        <span th:text="${param.error}"></span>
+      </p>
+      <p th:if="${param.success}" class="text-green-500">
+        비밀번호가 성공적으로 재설정되었습니다.
+      </p>
+    </div>
+  </div>
+</main>
+
+<!-- 푸터 -->
+<footer class="bg-black/80 text-white backdrop-blur-md mt-auto">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <div class="space-y-6">
+        <div class="flex items-center space-x-3">
+          <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+            <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-10 h-10 object-contain" />
+          </a>
+          <span class="text-xl font-bold">Eannanotek</span>
+        </div>
+        <div class="flex space-x-4">
+          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+            <i class="fab fa-facebook-f"></i>
+          </a>
+          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+            <i class="fab fa-twitter"></i>
+          </a>
+          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+            <i class="fab fa-instagram"></i>
+          </a>
+          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+            <i class="fab fa-youtube"></i>
+          </a>
+          <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+            <i class="fab fa-linkedin-in"></i>
+          </a>
+        </div>
+        <div class="flex space-x-3">
+          <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
+            <i class="fas fa-desktop text-white"></i>
+          </div>
+          <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
+            <i class="fas fa-mobile-alt text-white"></i>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-4 text-gray-100">Use cases</h3>
+        <ul class="space-y-2">
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UI design</a></li>
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UX design</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-4 text-gray-100">Explore</h3>
+        <ul class="space-y-2">
+          <li><a href="/prototype/qeq1" class="text-gray-300 hover:text-white transition-colors duration-300">비교견적 신청</a></li>
+          <li><a href="/prototype/main-history" class="text-gray-300 hover:text-white transition-colors duration-300">이력 조회</a></li>
+          <li><a href="/prototype/materials" class="text-gray-300 hover:text-white transition-colors duration-300">재료/부품 정보</a></li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="text-lg font-semibold mb-4 text-gray-100">Resources</h3>
+        <ul class="space-y-2">
+          <li><a href="/prototype/blog" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+            <i class="fas fa-blog mr-2"></i>
+            Blog
+          </a></li>
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">시공 예시</a></li>
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 재료</a></li>
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 부품</a></li>
+          <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Support</a></li>
+          <li><a href="/prototype/main-settings" class="text-gray-300 hover:text-white transition-colors duration-300">설정</a></li>
+          <li><a href="/prototype/dbs1" class="text-gray-300 hover:text-white transition-colors duration-300">관리자 모드</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="border-t border-gray-700 mt-12 pt-8">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <p class="text-gray-400 text-sm">© 2024 Eannanotek. All rights reserved.</p>
+        <div class="flex space-x-6 mt-4 md:mt-0">
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Privacy Policy</a>
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Terms of Service</a>
+          <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Cookie Policy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // 모달 관련 요소 가져오기 (메시지 표시용)
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <div id="modal-body" class="text-center">
+                <p class="mt-4 text-gray-700"></p>
+            </div>
+        </div>
+    `;
+  document.body.appendChild(modal);
+
+  const closeModalBtn = modal.querySelector('.close-button');
+  const modalBody = modal.querySelector('#modal-body p'); // p 태그 선택
+
+  closeModalBtn.onclick = function() {
+    modal.style.display = 'none';
+  }
+
+  window.onclick = function(event) {
+    if (event.target == modal) {
+      modal.style.display = 'none';
+    }
+  }
+
+  // 보안 코드 전송 버튼 클릭 이벤트 (AJAX 예시)
+  document.getElementById('sendSecurityCodeBtn').addEventListener('click', async () => {
+    const email = document.getElementById('email').value;
+    if (!email) {
+      modalBody.textContent = "이메일을 입력해주세요.";
+      modal.style.display = 'flex';
+      return;
+    }
+
+    modalBody.innerHTML = `<div class="loading-spinner"></div><p class="mt-4 text-gray-700">보안 코드 전송 중...</p>`;
+    modal.style.display = 'flex';
+
+    try {
+      // 실제 백엔드 API 호출 (예시)
+      const response = await fetch('/prototype/send-security-code', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-TOKEN': document.querySelector('input[name="_csrf"]').value // CSRF 토큰 포함
+        },
+        body: JSON.stringify({ email: email })
+      });
+
+      const result = await response.json();
+
+      if (response.ok && result.success) {
+        modalBody.textContent = "보안 코드가 이메일로 전송되었습니다.";
+      } else {
+        modalBody.textContent = result.message || "보안 코드 전송에 실패했습니다.";
+      }
+    } catch (error) {
+      console.error('Error sending security code:', error);
+      modalBody.textContent = "네트워크 오류 또는 서버 문제로 보안 코드 전송에 실패했습니다.";
+    } finally {
+      // 로딩 스피너 제거는 모달 내용 업데이트 시 자동으로 이루어짐
+    }
+  });
+
+  // 페이지 로드 시 URL 파라미터에 따른 메시지 표시
+  window.onload = function () {
+    const urlParams = new URLSearchParams(window.location.search);
+    const errorMessage = urlParams.get('error');
+    const successMessage = urlParams.get('success');
+
+    if (errorMessage) {
+      modalBody.textContent = errorMessage;
+      modal.style.display = 'flex';
+    } else if (successMessage) {
+      modalBody.textContent = "비밀번호가 성공적으로 재설정되었습니다.";
+      modal.style.display = 'flex';
+    }
+  }
+</script>
+
+</body>
+</html>

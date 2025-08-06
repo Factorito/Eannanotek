@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototype - FAQ</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        secondary: '#1E40AF',
+                        accent: '#06B6D4',
+                        dark: '#1F2937',
+                        light: '#F8FAFC'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(120deg, #f5f6fa 0%, #e0e0e0 100%);
+        }
+
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .billboard-shadow {
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+
+        .building {
+            background: linear-gradient(to top, #374151, #4B5563);
+        }
+
+        .social-icon {
+            transition: all 0.3s ease;
+        }
+
+        .social-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-link {
+            position: relative;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #111;
+            transition: width 0.3s ease;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        .glass {
+            background: rgba(255,255,255,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.18);
+        }
+        .glass-dark {
+            background: rgba(30,30,30,0.7);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-radius: 1.5rem;
+            border: 1px solid rgba(0,0,0,0.18);
+        }
+
+        /* 아코디언 스타일 */
+        .accordion-item {
+            border-bottom: 1px solid #e5e7eb; /* gray-200 */
+        }
+        .accordion-header {
+            @apply flex justify-between items-center w-full p-4 cursor-pointer text-left text-lg font-semibold text-gray-800 hover:bg-gray-50 transition-colors duration-200;
+        }
+        .accordion-content {
+            @apply p-4 text-gray-700 bg-gray-50 hidden;
+        }
+        .accordion-content.active {
+            display: block;
+        }
+        .accordion-icon {
+            transition: transform 0.3s ease;
+        }
+        .accordion-icon.rotate {
+            transform: rotate(180deg);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-white to-gray-200 min-h-screen flex flex-col">
+
+<!-- 헤더 -->
+<header class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-lg z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center py-2">
+            <a href="/prototype/main" class="text-sm text-gray-800 font-semibold hover:underline">Prototype</a>
+        </div>
+        <div class="flex items-center justify-between py-4">
+            <!-- 로고 -->
+            <div class="flex items-center space-x-4">
+                <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+                    <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
+                </a>
+            </div>
+            <!-- 검색바 -->
+            <div class="flex-1 max-w-md mx-8">
+                <div class="relative">
+                    <input type="text"
+                           placeholder="검색어를 입력해주세요."
+                           class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
+                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                        <i class="fas fa-search text-gray-500"></i>
+                    </div>
+                </div>
+            </div>
+            <!-- 네비게이션 -->
+            <nav class="flex items-center space-x-6">
+                <a href="/prototype/qeq1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">견적 신청</a>
+                <a href="/prototype/main-history" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
+                <a href="/prototype/materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
+                <a href="/prototype/faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
+                <a href="/prototype/blog" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">Blog</a>
+                <th:block th:if="${session.user == null}">
+                    <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인</a>
+                    <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
+                </th:block>
+
+                <th:block th:if="${session.user != null}">
+                    <a href="/prototype/main-settings"><span class="text-gray-700">[ <b th:text="${session.user.email}">사용자</b> ]</span></a>
+                    <form th:action="@{/prototype/logout}" method="post" style="display:inline;">
+
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">
+                            로그아웃
+                        </button>
+                    </form>
+                </th:block>
+            </nav>
+        </div>
+    </div>
+</header>
+
+<!-- 메인 컨텐츠 - FAQ 아코디언 -->
+<main class="flex-grow flex justify-center py-20 px-4 sm:px-6 lg:px-8 mt-16">
+    <div class="glass bg-white/80 p-8 rounded-xl shadow-xl w-full max-w-4xl">
+        <h2 class="text-2xl font-bold text-gray-800 text-center mb-8">자주 묻는 질문 (FAQ)</h2>
+
+        <div id="faq-accordion" class="border border-gray-200 rounded-lg overflow-hidden">
+            <!-- FAQ 항목 1 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 견적 신청은 어떻게 해야 하나요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 견적 신청은 메인 페이지 또는 상단 내비게이션 바의 "견적 신청" 메뉴를 통해 진행할 수 있습니다. 필요한 정보를 입력하고 제출하시면 담당자가 확인 후 연락드립니다.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 항목 2 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 실내와 실외 간판에 단가 차이가 나는 이유는 뭔가요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 실내 간판과 실외 간판은 사용되는 재료, 내구성 기준, 설치 환경(방수, 방진, 온도 변화 등), 그리고 안전 규정 등에서 차이가 발생합니다. 실외 간판은 외부 환경에 노출되므로 더 견고하고 특수한 재료 및 시공 방식이 필요하여 단가가 높아질 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 항목 3 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 부품이랑 재료를 잘 모르겠어요.</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 걱정하지 마세요! "재료/부품 정보" 메뉴에서 다양한 전광판 재료와 부품에 대한 상세 정보를 확인할 수 있습니다. 또한, 견적 신청 시 전문가의 도움을 받아 적절한 재료를 선택할 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 항목 4 -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 견적 신청을 했는데 견적서가 나오지 않아요.</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 사이트 오류가 발생했을 가능성이 있습니다. 고객센터에 문의해주시면 신속하게 확인을 도와드리겠습니다. 또는 스팸 메일함을 확인해주세요. 간혹 견적서가 스팸으로 분류될 수 있습니다.</p>
+                </div>
+            </div>
+
+            <!-- FAQ 항목 5 (추가 예시) -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. A/S 기간은 어떻게 되나요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 모든 제품은 무상 A/S 1년을 제공합니다. 1년 이후에는 유상 수리로 전환됩니다. 자세한 내용은 고객센터로 문의해주세요.</p>
+                </div>
+            </div>
+            <!-- 더 많은 FAQ 항목이 있다고 가정하고 페이지네이션을 추가합니다. -->
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 전광판 설치 시 필요한 서류는 무엇인가요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 전광판 설치는 지역별로 상이한 건축법규 및 옥외광고물 관리법의 적용을 받습니다. 일반적으로 건축물대장, 토지대장, 설치도면, 구조안전확인서 등이 필요할 수 있습니다. 자세한 내용은 해당 지역의 관할 구청에 문의하시거나, 저희 전문가에게 상담을 요청하시면 상세히 안내해 드립니다.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 전광판 유지보수는 어떻게 이루어지나요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 정기적인 점검 및 청소가 필요하며, 문제 발생 시 즉시 전문가에게 연락하여 수리하는 것이 중요합니다. 저희는 유지보수 계약을 통해 정기 점검 서비스를 제공하고 있습니다.</p>
+                </div>
+            </div>
+            <div class="accordion-item">
+                <button class="accordion-header" onclick="toggleAccordion(this)">
+                    <span>Q. 전광판 설치 기간은 얼마나 걸리나요?</span>
+                    <i class="fas fa-chevron-down accordion-icon"></i>
+                </button>
+                <div class="accordion-content">
+                    <p>A. 전광판의 크기, 종류, 설치 환경, 그리고 인허가 절차에 따라 설치 기간은 달라질 수 있습니다. 일반적으로 소형 전광판은 1~2주, 대형 전광판은 몇 주에서 한 달 이상 소요될 수 있습니다. 정확한 기간은 견적 상담 시 안내해 드립니다.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 페이지네이션 -->
+        <div class="flex justify-center items-center space-x-2 mt-8">
+            <button type="button" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <span class="px-3 py-1 bg-black text-white rounded-md">1</span>
+            <button type="button" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200">2</button>
+            <button type="button" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200">3</button>
+            <button type="button" class="px-3 py-1 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors duration-200">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</main>
+
+<!-- 푸터 -->
+<footer class="bg-black/80 text-white backdrop-blur-md mt-auto">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            <div class="space-y-6">
+                <div class="flex items-center space-x-3">
+                    <a href="http://eannanotek.com/" target="_blank" rel="noopener noreferrer">
+                        <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-10 h-10 object-contain" />
+                    </a>
+                    <span class="text-xl font-bold">Eannanotek</span>
+                </div>
+                <div class="flex space-x-4">
+                    <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+                        <i class="fab fa-instagram"></i>
+                    </a>
+                    <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+                        <i class="fab fa-youtube"></i>
+                    </a>
+                    <a href="#" class="social-icon w-10 h-10 glass-dark rounded-full flex items-center justify-center text-white">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+                <div class="flex space-x-3">
+                    <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
+                        <i class="fas fa-desktop text-white"></i>
+                    </div>
+                    <div class="w-8 h-8 glass-dark rounded flex items-center justify-center">
+                        <i class="fas fa-mobile-alt text-white"></i>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-100">Use cases</h3>
+                <ul class="space-y-2">
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UI design</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">UX design</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-100">Explore</h3>
+                <ul class="space-y-2">
+                    <li><a href="/prototype/qeq1" class="text-gray-300 hover:text-white transition-colors duration-300">비교견적 신청</a></li>
+                    <li><a href="/prototype/main-history" class="text-gray-300 hover:text-white transition-colors duration-300">이력 조회</a></li>
+                    <li><a href="/prototype/materials" class="text-gray-300 hover:text-white transition-colors duration-300">재료/부품 정보</a></li>
+                </ul>
+            </div>
+            <div>
+                <h3 class="text-lg font-semibold mb-4 text-gray-100">Resources</h3>
+                <ul class="space-y-2">
+                    <li><a href="/prototype/blog" class="text-gray-300 hover:text-white transition-colors duration-300 flex items-center">
+                        <i class="fas fa-blog mr-2"></i>
+                        Blog
+                    </a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">시공 예시</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 재료</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">전광판 부품</a></li>
+                    <li><a href="#" class="text-gray-300 hover:text-white transition-colors duration-300">Support</a></li>
+                    <li><a href="/prototype/main-settings" class="text-gray-300 hover:text-white transition-colors duration-300">설정</a></li>
+                    <li><a href="/prototype/dbs1" class="text-gray-300 hover:text-white transition-colors duration-300">관리자 모드</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="border-t border-gray-700 mt-12 pt-8">
+            <div class="flex flex-col md:flex-row justify-between items-center">
+                <p class="text-gray-400 text-sm">© 2024 Eannanotek. All rights reserved.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Privacy Policy</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Terms of Service</a>
+                    <a href="#" class="text-gray-400 hover:text-white text-sm transition-colors duration-300">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>
+    // 아코디언 토글 함수
+    function toggleAccordion(button) {
+        const item = button.closest('.accordion-item');
+        const content = item.querySelector('.accordion-content');
+        const icon = button.querySelector('.accordion-icon');
+
+        // 다른 모든 아코디언 닫기
+        document.querySelectorAll('.accordion-content.active').forEach(openContent => {
+            if (openContent !== content) {
+                openContent.classList.remove('active');
+                openContent.previousElementSibling.querySelector('.accordion-icon').classList.remove('rotate');
+            }
+        });
+
+        // 현재 아코디언 토글
+        content.classList.toggle('active');
+        icon.classList.toggle('rotate');
+    }
+
+    // 페이지 로드 시 URL에 'error=true'가 있는지 확인하고 메시지 표시
+    window.onload = function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('error') === 'true') {
+            // 이 페이지에는 모달이 없으므로, 필요하면 추가해야 합니다.
+            // alert("오류가 발생했습니다.");
+        }
+    }
+</script>
+
+</body>
+</html>

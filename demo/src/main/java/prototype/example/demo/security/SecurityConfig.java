@@ -41,20 +41,23 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/",
+                                "/prototype/main",
                                 "/prototype/login",
                                 "/prototype/register",
                                 "/prototype/send-security-code",
-                                "/prototype/information",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/Eannanotek.png",
                                 "/favicon.ico",
-                                "prototype/mi"
+                                "/prototype/mi",
+                                "/prototype/mi2",
+                                "/prototype/mi3"
+
                         ).permitAll()
-                        .requestMatchers("/prototype/qeq1", "/prototype/qeq2", "/prototype/submit").authenticated()
+                        .requestMatchers("/prototype/qeq1", "/prototype/qeq2", "/prototype/submit","/prototype/board/submit").authenticated()
                         .requestMatchers("/write/**").hasRole("ADMIN")
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 )
                 .formLogin(form -> form
                         .loginPage("/prototype/login")

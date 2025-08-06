@@ -131,13 +131,19 @@
                 <a href="#faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
                 <a href="/prototype/write" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">글쓰기</a>
                 <th:block th:if="${session.user == null}">
-                    <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">Sign In</a>
-                    <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">Register</a>
+                    <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인</a>
+                    <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
                 </th:block>
 
                 <th:block th:if="${session.user != null}">
-                    <span class="text-gray-700">[ <b th:text="${session.user.name}">사용자</b> ]</span>
-                    <a href="/prototype/logout" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">로그아웃</a>
+                    <a href="/prototype/main-settings"><span class="text-gray-700">[ <b th:text="${session.user.email}">사용자</b> ]</span></a>
+                    <form th:action="@{/prototype/logout}" method="post" style="display:inline;">
+
+                        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+                        <button type="submit" class="px-4 py-2 bg-gray-100 border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-200">
+                            로그아웃
+                        </button>
+                    </form>
                 </th:block>
             </nav>
         </div>

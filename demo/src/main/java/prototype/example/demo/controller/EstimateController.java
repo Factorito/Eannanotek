@@ -61,11 +61,19 @@ public class EstimateController {
                 install_day, location, CaseType, env, field
         );
 
+        // Ci 엔티티의 email2, installDay 필드와 일치하도록 addFlashAttribute
+        redirectAttributes.addFlashAttribute("email2", email);
+        redirectAttributes.addFlashAttribute("installDay", install_day);
 
-        redirectAttributes.addFlashAttribute("email2", email); // Ci 엔티티의 email2 필드명과 일치
-        redirectAttributes.addFlashAttribute("installDay", install_day); // Ci 엔티티의 installDay 필드명과 일치
-        // 결과값 model에 담아 redirect
+        // Formservice에서 계산된 모든 결과값을 'estimate'라는 이름으로 모델에 담아 redirect
         redirectAttributes.addFlashAttribute("estimate", result);
+
+        // CQ_QEQ_002.html에서 직접 참조하는 price, vat, total 변수를 위해 개별적으로도 전달
+        // (Formservice의 result 맵에 이미 포맷팅된 문자열로 들어있음)
+        redirectAttributes.addFlashAttribute("price", result.getOrDefault("price", "0원"));
+        redirectAttributes.addFlashAttribute("vat", result.getOrDefault("vat", "0원"));
+        redirectAttributes.addFlashAttribute("total", result.getOrDefault("total", "0원"));
+
         return "redirect:/prototype/qeq2";
     }
 
