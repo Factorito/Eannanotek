@@ -118,7 +118,7 @@
 <header class="fixed top-0 w-full bg-white/80 backdrop-blur-md shadow-lg z-50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center py-2">
-            <a href="/prototype/main" class="text-sm text-gray-800 font-semibold hover:underline">Prototype</a>
+            <a herf="/prototpye/main" class="text-sm text-gray-800 font-semibold">Prototype</a>
         </div>
         <div class="flex items-center justify-between py-4">
             <!-- 로고 -->
@@ -127,31 +127,22 @@
                     <img src="/Eannanotek.png" alt="Eannanotek 로고" class="w-12 h-12 object-contain" />
                 </a>
             </div>
-            <!-- 검색바 -->
-            <div class="flex-1 max-w-md mx-8">
-                <div class="relative">
-                    <input type="text"
-                           placeholder="검색어를 입력해주세요."
-                           class="w-full px-4 py-3 pl-12 pr-4 glass border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-black focus:border-transparent transition-all duration-300 text-gray-900 placeholder-gray-400">
-                    <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                        <i class="fas fa-search text-gray-500"></i>
-                    </div>
-                </div>
-            </div>
             <!-- 네비게이션 -->
-            <nav class="flex items-center space-x-6">
-                <a href="/prototype/qeq1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">견적 신청</a>
-                <a href="/prototype/main-history" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
-                <a href="/prototype/materials" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
-                <a href="/prototype/faq" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
-                <a href="/prototype/blog" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">Blog</a>
+            <nav class="flex items-center space-x-4">
+                <a href="/prototype/main" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">웹 메인</a>
+                <a href="/prototype/qeq1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">비교견적 신청</a>
+                <a href="/prototype/main3" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">이력 조회</a>
+                <a href="/prototype/mi1" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">재료/부품 정보</a>
+                <a href="/prototype/mi3" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">FAQ</a>
+                <a href="/prototype/write" class="nav-link text-gray-900 hover:text-black font-medium transition-colors duration-300">글쓰기</a>
+
                 <th:block th:if="${session.user == null}">
                     <a href="/prototype/login" class="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800">로그인</a>
                     <a href="/prototype/register" class="px-4 py-2 bg-white border border-gray-300 text-gray-800 rounded-lg hover:bg-gray-100">회원가입</a>
                 </th:block>
 
                 <th:block th:if="${session.user != null}">
-                    <a href="/prototype/main-settings"><span class="text-gray-700">[ <b th:text="${session.user.email}">사용자</b> ]</span></a>
+                    <a href="/prototype/main2"><span class="text-gray-700">[ <b th:text="${session.user.email}">사용자</b> ]</span></a>
                     <form th:action="@{/prototype/logout}" method="post" style="display:inline;">
 
                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
@@ -160,6 +151,7 @@
                         </button>
                     </form>
                 </th:block>
+
             </nav>
         </div>
     </div>
